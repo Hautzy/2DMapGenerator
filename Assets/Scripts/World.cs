@@ -9,8 +9,9 @@ using System.Linq;
 [Serializable()]
 public class World: ISerializable
 {
-	public static string WorldName = "map.txt";
-
+	public static string WorldName = "map";
+	
+	public int Seed { get; set; }
     public Block[,] Chunk { get; set; }
     public Block[,] Changes { get; set; }
     public List<Block> Obstacles { get; set; }
@@ -49,15 +50,15 @@ public class World: ISerializable
 	public bool SaveChanges ()
 	{
 		Debug.Log("Save World");
-		SerializationController.Serialize(WorldName, this);
+		SerializationController.Serialize(WorldName + "_" + Seed + ".txt", this);
 		return true;
 	}
 
-	public static World LoadMap (string map)
+	public static World LoadMap (string map, int seed)
 	{
 		try {
 			Debug.Log("Load World");
-			World world = (World)SerializationController.Deserialize (map);
+			World world = (World)SerializationController.Deserialize(map + "_" + seed + ".txt");
 			return world;
 		} 
 		catch (Exception ex) 

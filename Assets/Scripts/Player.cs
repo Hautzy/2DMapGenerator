@@ -36,29 +36,37 @@ public class Player : MonoBehaviour
 	    HandlePlayerClick();
 	}
 
-    private void HandlePlayerClick()
-    {
-        var chunk = World.Chunk;
-        var changes = World.Changes;
-        int height = chunk.GetLength(0);
-        int width = chunk.GetLength(1);
+    private void HandlePlayerClick ()
+	{
+		var chunk = World.Chunk;
+		var changes = World.Changes;
+		int height = chunk.GetLength (0);
+		int width = chunk.GetLength (1);
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            int yCoord = height / 2 + Mathf.RoundToInt(CurrentMousePosition.y - 0.5f);
-            int xCoord = width / 2 + Mathf.RoundToInt(CurrentMousePosition.x);
+		if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1)) {
+			int yCoord = height / 2 + Mathf.RoundToInt (CurrentMousePosition.y - 0.5f);
+			int xCoord = width / 2 + Mathf.RoundToInt (CurrentMousePosition.x);
 
-            Block block = (xCoord >= 0 && xCoord < width && yCoord >= 0 && yCoord < height) ? chunk[yCoord, xCoord] : null;
-            if (block != null)
-            {
-                Block toDeleteBlock = chunk[yCoord, xCoord];
-                Block voidBlock = new Block(BlockTypes.Void, null, toDeleteBlock.GameObject.transform.position.x, toDeleteBlock.GameObject.transform.position.y);
-                Destroy(toDeleteBlock.GameObject);
-                chunk[yCoord, xCoord] = null;
-                changes[yCoord, xCoord] = voidBlock;
-                World.SaveChanges();
-            }
-        }
+			Block block = (xCoord >= 0 && xCoord < width && yCoord >= 0 && yCoord < height) ? chunk [yCoord, xCoord] : null;
+			if (block != null && Input.GetMouseButtonDown (0)) {
+				Block toDeleteBlock = chunk [yCoord, xCoord];
+				Block voidBlock = new Block (BlockTypes.Void, null, toDeleteBlock.GameObject.transform.position.x, toDeleteBlock.GameObject.transform.position.y);
+				Destroy (toDeleteBlock.GameObject);
+				chunk [yCoord, xCoord] = null;
+				changes [yCoord, xCoord] = voidBlock;
+				World.SaveChanges ();
+			} else if (Input.GetMouseButtonDown (1)) {
+				if (block != null) {
+					Block toDeleteBlock = chunk [yCoord, xCoord];
+					Destroy(toDeleteBlock.GameObject);
+				}
+				var current = Instantiate(PrefabRepository.Instance.BlockPrefabs[BlockTypes.Grass], new Vector3(xCoord - width / 2, yCoord - height / 2), Quaternion.identity) as GameObject;
+				Block grassBlock = new Block (BlockTypes.Grass, current, xCoord - width / 2, yCoord - height / 2);
+				chunk [yCoord, xCoord] = grassBlock;
+				changes [yCoord, xCoord] = grassBlock;
+				World.SaveChanges ();
+			}
+		}
     }
 
     private void HandleMouseFocus()
@@ -96,26 +104,22 @@ public class Player : MonoBehaviour
 
     }
 
-    private void PlayerMovement()
-    {
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            _rb.AddForce(new Vector2(-SpeedX * Time.deltaTime, 0));
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            _rb.AddForce(new Vector2(SpeedX * Time.deltaTime, 0));
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            _rb.AddForce(new Vector2(0, SpeedY * Time.deltaTime));
-        }
-        float mouseWheel = Input.GetAxis("Mouse ScrollWheel");
-        if (Camera.main.orthographicSize + mouseWheel * Time.deltaTime * 100 > 0)
-            Camera.main.orthographicSize += mouseWheel * Time.deltaTime * 100;
-        if (Input.GetKey(KeyCode.F))
-        {
-            Camera.main.orthographicSize = 11.4f;
-        }
+    private void PlayerMovement ()
+	{
+		if (Input.GetKey (KeyCode.LeftArrow)) {
+			_rb.AddForce (new Vector2 (-SpeedX * Time.deltaTime, 0));
+		}
+		if (Input.GetKey (KeyCode.RightArrow)) {
+			_rb.AddForce (new Vector2 (SpeedX * Time.deltaTime, 0));
+		}
+		if (Input.GetKey (KeyCode.Space)) {
+			_rb.AddForce (new Vector2 (0, SpeedY * Time.deltaTime));
+		}
+		float mouseWheel = Input.GetAxis ("Mouse ScrollWheel");
+		if (Camera.main.orthographicSize + mouseWheel * Time.deltaTime * 100 > 0)
+			Camera.main.orthographicSize += mouseWheel * Time.deltaTime * 100;
+		if (Input.GetKey (KeyCode.F)) {
+			Camera.main.orthographicSize = 11.4f;
+		}
     }
 }

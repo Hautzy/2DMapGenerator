@@ -22,6 +22,7 @@ public class MapGenerator : MonoBehaviour
 	    _repo = PrefabRepository.Instance;
         Random.InitState(Seed);
 		World = new World(-128, 128, -32, 32);
+		World.Seed = Seed;
 	    _repo.World = World;
 	    RegenerateMap();
 	    LoadMap();
@@ -29,7 +30,7 @@ public class MapGenerator : MonoBehaviour
 
     private void LoadMap ()
 	{
-		World loadedWorld = World.LoadMap (World.WorldName);
+		World loadedWorld = World.LoadMap (World.WorldName, Seed);
 		if(loadedWorld == null)
 			return;
 		var changes = loadedWorld.Changes;
@@ -50,7 +51,7 @@ public class MapGenerator : MonoBehaviour
 					} 
 					else 
 					{
-						var current = Instantiate(block.GameObject, block.GameObject.transform.position, Quaternion.identity) as GameObject;
+						var current = Instantiate(PrefabRepository.Instance.BlockPrefabs[block.BlockType], new Vector3(block.X, block.Y), Quaternion.identity) as GameObject;
 						Block newBlock = new Block(block.BlockType, current, block.X, block.Y);
 						chunk[y, x] = newBlock;
 					}
