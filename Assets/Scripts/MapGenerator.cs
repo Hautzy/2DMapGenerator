@@ -17,20 +17,46 @@ public class MapGenerator : MonoBehaviour
 
 	void Start ()
 	{
-        World = new World(-128, 128, -32, 32);
-	    _repo = PrefabRepository.Instance;
         noise = new PerlinNoise(Seed);
 	    Map = PrefabRepository.Instance.Map;
+	    _repo = PrefabRepository.Instance;
         Random.InitState(Seed);
-	    LoadMap();
+		World = new World(-128, 128, -32, 32);
+	    _repo.World = World;
 	    RegenerateMap();
+	    LoadMap();
 	}
 
-    private void LoadMap()
-    {
-        var changes = new Block[Mathf.Abs(World.StartPointY) + Mathf.Abs(World.EndPointY), 
-            Mathf.Abs(World.StartPointX) + Mathf.Abs(World.EndPointX)];
+    private void LoadMap ()
+	{
+		World loadedWorld = World.LoadMap (World.WorldName);
+		if(loadedWorld == null)
+			return;
+		var changes = loadedWorld.Changes;
+		var chunk = World.Chunk;
+		World.Changes = changes;
 
+		int height = chunk.GetLength (0);
+		int width = chunk.GetLength (1);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				var block = changes [y, x];
+				if (block != null) {
+					Debug.Log(block);
+					if (block.BlockType == BlockTypes.Void) {
+						Destroy (chunk[y, x].GameObject);
+						chunk [y, x] = null;
+					} 
+					else 
+					{
+						var current = Instantiate(block.GameObject, block.GameObject.transform.position, Quaternion.identity) as GameObject;
+						Block newBlock = new Block(block.BlockType, current, block.X, block.Y);
+						chunk[y, x] = newBlock;
+					}
+				}
+			}
+        }
     }
 
 

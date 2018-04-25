@@ -14,10 +14,15 @@ public class Player : MonoBehaviour
 
     public Vector3 CurrentMousePosition { get; set; }
     public GameObject BlockSelector { get; private set; }
+    public World World {
+		get;
+		set;
+	}
 
     // Use this for initialization
     void Start ()
 	{
+		World = PrefabRepository.Instance.World;
 	    _rb = GetComponent<Rigidbody2D>();
 	    BlockSelector = PrefabRepository.Instance.BlockSelector;
 	    BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
@@ -33,8 +38,8 @@ public class Player : MonoBehaviour
 
     private void HandlePlayerClick()
     {
-        var chunk = PrefabRepository.Instance.Generator.GetComponent<MapGenerator>().World.Chunk;
-        var changes = PrefabRepository.Instance.Generator.GetComponent<MapGenerator>().World.Changes;
+        var chunk = World.Chunk;
+        var changes = World.Changes;
         int height = chunk.GetLength(0);
         int width = chunk.GetLength(1);
 
@@ -51,6 +56,7 @@ public class Player : MonoBehaviour
                 Destroy(toDeleteBlock.GameObject);
                 chunk[yCoord, xCoord] = null;
                 changes[yCoord, xCoord] = voidBlock;
+                World.SaveChanges();
             }
         }
     }
@@ -70,7 +76,7 @@ public class Player : MonoBehaviour
 
     private void SearchForBlock()
     {
-        var chunk = PrefabRepository.Instance.Generator.GetComponent<MapGenerator>().World.Chunk;
+        var chunk = World.Chunk;
         int height = chunk.GetLength(0);
         int width = chunk.GetLength(1);
 
@@ -110,7 +116,6 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.F))
         {
             Camera.main.orthographicSize = 11.4f;
-
         }
     }
 }

@@ -27,10 +27,16 @@ namespace Assets.Scripts
         public GameObject TxtMouseYCoord { get; set; }
         public GameObject TxtBlockType { get; set; }
 
+        public World World {
+			get;
+			set;
+		}
+
         public GameObject BlockSelector { get; set; }
 
         private PrefabRepository()
         {
+
             LoadGameObjects();
             LoadBlockPrefabs();
             LoadGameUI();
