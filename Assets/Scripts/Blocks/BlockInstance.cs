@@ -7,17 +7,17 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Blocks
 {
 	[Serializable()]
-    public class Block: ISerializable
+    public class BlockInstance: ISerializable
     {
         public BlockTypes BlockType { get; set; }
         public GameObject GameObject { get; set; }
         public float X { get; set; }
         public float Y { get; set; }
 
-        public Block(BlockTypes blockType, GameObject gameObject, float x, float y)
+        public BlockInstance(BlockTypes blockType, GameObject gameObject, float x, float y)
         {
             BlockType = blockType;
             GameObject = gameObject;
@@ -25,7 +25,7 @@ namespace Assets.Scripts
             Y = y;
         }
 
-        public Block(SerializationInfo info, StreamingContext ctx) 
+        public BlockInstance(SerializationInfo info, StreamingContext ctx) 
         {
         	X = (float)info.GetValue("X", typeof(float));
         	Y = (float)info.GetValue("Y", typeof(float));
@@ -39,7 +39,7 @@ namespace Assets.Scripts
 			info.AddValue("BlockType", BlockType);
 		}
 
-		public static void Serialize (string fileName, Block block)
+		public static void Serialize (string fileName, BlockInstance block)
 		{
 			Stream stream = File.Open(fileName, FileMode.Create);
 			BinaryFormatter formatter = new BinaryFormatter();
@@ -48,13 +48,13 @@ namespace Assets.Scripts
 			stream.Close();
 		}
 
-		public static Block Deserialize (string fileName)
+		public static BlockInstance Deserialize (string fileName)
 		{
-			Block block = null;
+			BlockInstance block = null;
 			Stream stream = File.Open(fileName, FileMode.Open);
 			BinaryFormatter formatter = new BinaryFormatter();
 
-			block = (Block) formatter.Deserialize(stream);
+			block = (BlockInstance) formatter.Deserialize(stream);
 			stream.Close();
 			return block;
 		}
