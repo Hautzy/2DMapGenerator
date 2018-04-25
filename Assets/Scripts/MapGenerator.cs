@@ -56,6 +56,7 @@ namespace Assets.Scripts
 						else 
 						{
 							var current = Instantiate(PrefabRepository.Instance.GetBlockPrefab(block.BlockType), new Vector3(block.X, block.Y), Quaternion.identity) as GameObject;
+							current.transform.parent = Map.transform.GetChild(0).transform;
 							BlockInstance newBlock = new BlockInstance(block.BlockType, current, block.X, block.Y);
 							chunk[y, x] = newBlock;
 						}

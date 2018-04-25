@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Scripts.Blocks;
 using UnityEngine;
 using UnityEngine.UI;
+using Assets.Scripts.Items;
 
 namespace Assets.Scripts {
 	public class Player : MonoBehaviour
@@ -52,6 +53,16 @@ namespace Assets.Scripts {
 				if (block != null && Input.GetMouseButtonDown (0)) {
 					BlockInstance toDeleteBlock = chunk [yCoord, xCoord];
 					BlockInstance voidBlock = new BlockInstance (BlockTypes.Void, null, toDeleteBlock.GameObject.transform.position.x, toDeleteBlock.GameObject.transform.position.y);
+
+					ItemDrop dropDefinition = PrefabRepository.Instance.BlockDefinitions [toDeleteBlock.BlockType].ItemDrop;
+					if (dropDefinition != null) 
+					{
+						GameObject itemGameObject = Instantiate (dropDefinition.Item.Prefab, toDeleteBlock.GameObject.transform.position, Quaternion.identity);
+						itemGameObject.transform.parent = PrefabRepository.Instance.Map.transform.GetChild(2).transform;
+						ItemInstance drop = new ItemInstance (dropDefinition.Item.ItemType, itemGameObject);
+						World.Items.Add (drop);
+					}
+
 					Destroy (toDeleteBlock.GameObject);
 					chunk [yCoord, xCoord] = null;
 					changes [yCoord, xCoord] = voidBlock;
@@ -62,6 +73,7 @@ namespace Assets.Scripts {
 						Destroy(toDeleteBlock.GameObject);
 					}
 					var current = Instantiate(PrefabRepository.Instance.GetBlockPrefab(BlockTypes.Grass), new Vector3(xCoord - width / 2, yCoord - height / 2), Quaternion.identity) as GameObject;
+					current.transform.parent = PrefabRepository.Instance.Map.transform.GetChild(0).transform;
 					BlockInstance grassBlock = new BlockInstance (BlockTypes.Grass, current, xCoord - width / 2, yCoord - height / 2);
 					chunk [yCoord, xCoord] = grassBlock;
 					changes [yCoord, xCoord] = grassBlock;

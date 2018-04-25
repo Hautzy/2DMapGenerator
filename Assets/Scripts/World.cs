@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Runtime.Serialization;
 using System;
 using System.Linq;
+using Assets.Scripts.Items;
 
 namespace Assets.Scripts
 {
@@ -17,6 +18,7 @@ namespace Assets.Scripts
 	    public BlockInstance[,] Chunk { get; set; }
 	    public BlockInstance[,] Changes { get; set; }
 	    public List<BlockInstance> Obstacles { get; set; }
+	    public List<ItemInstance> Items { get; set; }
 
 	    public int StartPointX { get; set; }
 	    public int EndPointX { get; set; }
@@ -40,6 +42,7 @@ namespace Assets.Scripts
 	        Chunk = new BlockInstance[Mathf.Abs(StartPointY) + Mathf.Abs(EndPointY), Mathf.Abs(StartPointX) + Mathf.Abs(EndPointX)];
 	        Changes = new BlockInstance[Mathf.Abs(StartPointY) + Mathf.Abs(EndPointY), Mathf.Abs(StartPointX) + Mathf.Abs(EndPointX)];
 	        Obstacles = new List<BlockInstance>();
+	        Items = new List<ItemInstance>();
 	    }
 
 	    public void GetObjectData (SerializationInfo info, StreamingContext ctx)
