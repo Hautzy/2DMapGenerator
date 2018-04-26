@@ -21,11 +21,11 @@ GameObject:
   - component: {fileID: 4235400398261836}
   - component: {fileID: 212442951599503320}
   - component: {fileID: 114133423464715280}
-  - component: {fileID: 50336024001047970}
   - component: {fileID: 61294263280940966}
+  - component: {fileID: 50179680022579410}
   m_Layer: 0
   m_Name: GrassDrop
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43,7 +43,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &50336024001047970
+--- !u!50 &50179680022579410
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 1

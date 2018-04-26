@@ -13,6 +13,7 @@ namespace Assets.Scripts
         private static PrefabRepository _instance;
 
         public const string PrefabsFolderPath = "Prefabs/";
+        public const string SpritesFolderPath = "Sprites/";
 
         public static PrefabRepository Instance
         {
@@ -22,15 +23,15 @@ namespace Assets.Scripts
         public Dictionary<BlockTypes, BlockDefinition> BlockDefinitions { get; set; }
         public Dictionary<ItemTypes, ItemDefinition> ItemDefinitions { get; set; }
 
-		public GameObject GetBlockPrefab(BlockTypes type)
-	   	{
-	      	return BlockDefinitions[type].Prefab;
-	   	}
+        public GameObject GetBlockPrefab(BlockTypes type)
+        {
+            return BlockDefinitions[type].Prefab;
+        }
 
-	   	public GameObject GetItemPrefab (ItemTypes type)
-		{
-			return ItemDefinitions[type].Prefab;
-		}
+        public GameObject GetItemPrefab(ItemTypes type)
+        {
+            return ItemDefinitions[type].Prefab;
+        }
 
         public GameObject Map { get; private set; }
         public GameObject Player { get; private set; }
@@ -39,11 +40,14 @@ namespace Assets.Scripts
         public GameObject TxtMouseXCoord { get; set; }
         public GameObject TxtMouseYCoord { get; set; }
         public GameObject TxtBlockType { get; set; }
+        public GameObject TxtInventory { get; set; }
+        public GameObject GUIInventory { get; set; }
+        public GameObject InventoryCountText { get; set; }
 
-        public World World {
-			get;
-			set;
-		}
+        public Sprite SlotSprite { get; set; }
+        public Sprite SlotHoverSprite { get; set; }
+
+        public World World { get; set; }
 
         public GameObject BlockSelector { get; set; }
 
@@ -53,21 +57,31 @@ namespace Assets.Scripts
             LoadBlockPrefabs();
             LoadItemPrefabs();
             LoadGameUI();
+            LoadSprites();
 
             DefineItemDrops();
         }
 
-        private void DefineItemDrops ()
-		{
-			//Grass block -> 1 x Grass block drop
-			BlockDefinitions[BlockTypes.Grass].ItemDrop = new ItemDrop(ItemDefinitions[ItemTypes.GrassDrop], 1);
-		}
+        private void LoadSprites()
+        {
+            SlotSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot");
+            SlotHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot_select");
+        }
+
+        private void DefineItemDrops()
+        {
+            //Grass block -> 1 x Grass block drop
+            BlockDefinitions[BlockTypes.Grass].ItemDrop = new ItemDrop(ItemDefinitions[ItemTypes.GrassDrop], 1);
+        }
 
         private void LoadGameUI()
         {
             TxtMouseXCoord = GameObject.Find("TxtMouseXCoord");
             TxtMouseYCoord = GameObject.Find("TxtMouseYCoord");
             TxtBlockType = GameObject.Find("TxtBlockType");
+            TxtInventory = GameObject.Find("TxtInventory");
+            GUIInventory = GameObject.Find("GUIInventory");
+            InventoryCountText = Resources.Load(PrefabsFolderPath + "InventoryCountText") as GameObject;
         }
 
         private void LoadGameObjects()
@@ -77,14 +91,14 @@ namespace Assets.Scripts
             Generator = GameObject.Find("Generator");
         }
 
-        private void LoadItemPrefabs ()
-		{
+        private void LoadItemPrefabs()
+        {
             ItemDefinitions = new Dictionary<ItemTypes, ItemDefinition>();
 
-			LoadSingleItemPrefab("GrassDrop", ItemTypes.GrassDrop);
-			LoadSingleItemPrefab("DirtDrop", ItemTypes.DirtDrop);
-            LoadSingleItemPrefab("StoneDrop", ItemTypes.StoneDrop);
-		}
+            LoadSingleItemPrefab("GrassDrop", ItemTypes.GrassDrop, "GrassDrop", "GrassDrop_Item");
+            LoadSingleItemPrefab("DirtDrop", ItemTypes.DirtDrop, "DirtDrop", "DirtDrop_Item");
+            LoadSingleItemPrefab("StoneDrop", ItemTypes.StoneDrop, "StoneDrop", "StoneDrop_item");
+        }
 
         private void LoadBlockPrefabs()
         {
@@ -102,19 +116,25 @@ namespace Assets.Scripts
         private void LoadSingleBlockPrefab(string name, BlockTypes type)
         {
             BlockDefinitions.Add(type, new BlockDefinition(
-            	name,
-            	type,
-            	Resources.Load(PrefabsFolderPath + name) as GameObject
-        	));
+                name,
+                type,
+                Resources.Load(PrefabsFolderPath + name) as GameObject
+            ));
         }
 
-        private void LoadSingleItemPrefab (string name, ItemTypes type)
-		{
-			ItemDefinitions.Add(type, new ItemDefinition(
-				name, 
-				type,
-				Resources.Load(PrefabsFolderPath + name) as GameObject
-			));
-		}
+        private void LoadSingleItemPrefab(string name, ItemTypes type, string prefabName, string spriteName)
+        {
+            var itemDefinition = new ItemDefinition(
+                name,
+                type,
+                Resources.Load(PrefabsFolderPath + prefabName) as GameObject
+            );
+
+            if (spriteName != null)
+            {
+                itemDefinition.Sprite = Resources.Load<Sprite>(SpritesFolderPath + spriteName);
+            }
+            ItemDefinitions.Add(type, itemDefinition);
+        }
     }
 }
