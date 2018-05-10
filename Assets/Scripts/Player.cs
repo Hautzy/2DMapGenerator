@@ -24,7 +24,7 @@ namespace Assets.Scripts
         void Start()
         {
             World = PrefabRepository.Instance.World;
-            Inventory = new Inventory();
+            Inventory = new Inventory(this);
             _rb = GetComponent<Rigidbody2D>();
             BlockSelector = PrefabRepository.Instance.BlockSelector;
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
@@ -174,6 +174,7 @@ namespace Assets.Scripts
                 {
                     InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[drop.ItemType], 1);
                     Inventory.AddToEmptySlot(ii);
+                    PrefabRepository.Instance.World.Items.Remove(drop);
                     Destroy(drop.GameObject);
                     if (Inventory.ShowInventory)
                     {

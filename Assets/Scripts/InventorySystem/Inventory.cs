@@ -18,6 +18,21 @@ namespace Assets.Scripts.InventorySystem
         public const float InventoryLeftPadding = 500;
         public bool ShowInventory { get; set; }
         public InventoryItem[,] Slots { get; set; }
+        public Player Owner {
+			get;
+			set;
+		}
+
+		public Inventory (Player owner)
+		{
+			Owner = owner;
+			Slots = new InventoryItem[SlotsHeight, SlotsWidth];
+
+            InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 1);
+            Slots[0, 0] = ii;
+
+            PrefabRepository.Instance.TxtInventory.GetComponent<Text>().text = ToString();
+		}
 
         public bool HasFreeSlot
         {
@@ -46,16 +61,6 @@ namespace Assets.Scripts.InventorySystem
                 }
                 return count;
             }
-        }
-
-        public Inventory()
-        {
-            Slots = new InventoryItem[SlotsHeight, SlotsWidth];
-
-            InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 1);
-            Slots[0, 0] = ii;
-
-            PrefabRepository.Instance.TxtInventory.GetComponent<Text>().text = ToString();
         }
 
         public void AddToEmptySlot(InventoryItem ii)
@@ -101,6 +106,7 @@ namespace Assets.Scripts.InventorySystem
                     InventoryItem ii = Slots[y, x];
                     InventorySlot inventorySlot = slot.AddComponent<InventorySlot>();
                     inventorySlot.InventoryItem = ii;
+                    inventorySlot.Inventory = this;
                     inventorySlot.X = x;
                     inventorySlot.Y = y;
                     if (ii != null)
@@ -110,9 +116,6 @@ namespace Assets.Scripts.InventorySystem
                         image.sprite = ii.ItemDefinition.Sprite;
                         image.rectTransform.sizeDelta = new Vector2(SlotSize * 0.9f, SlotSize * 0.9f);
                         slotItem.transform.SetParent(slot.transform);
-                        
-
-
 
                         GameObject prefab = PrefabRepository.Instance.InventoryCountText;
                         GameObject slotCount = GameObject.Instantiate(prefab, new Vector3(), Quaternion.identity);
