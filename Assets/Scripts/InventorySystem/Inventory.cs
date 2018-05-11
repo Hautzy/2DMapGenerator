@@ -4,24 +4,30 @@ using System.Linq;
 using System.Text;
 using Assets.Scripts.Items;
 using UnityEngine;
+using UnityEngine.Advertisements;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.InventorySystem
 {
     public class Inventory
     {
-        public const int SlotsWidth = 4;
+        public const int SlotsWidth = 6;
         public const int SlotsHeight = 4;
+        public const int MaxItemCount = 4;
         public const float SlotSize = 50f;
         public const float SlotMargin = 5f;
-        public const float InventoryTopPadding = 500;
-        public const float InventoryLeftPadding = 500;
+        public const float InventoryTopPadding = 200;
+        public const float InventoryLeftPadding = 1000;
         public bool ShowInventory { get; set; }
         public InventoryItem[,] Slots { get; set; }
         public Player Owner {
 			get;
 			set;
 		}
+        public InventoryItem CurrentDraggingInventoryItem { get; set; }
+        public Vector2Int DraggingStartingPosition { get; set; }
+        public Vector2Int? SelectedSlotPosition { get; set; }
+        public GameObject CurrentDraggingImageItem { get; set; } // current dragged item as image
 
 		public Inventory (Player owner)
 		{
@@ -29,15 +35,21 @@ namespace Assets.Scripts.InventorySystem
 			Slots = new InventoryItem[SlotsHeight, SlotsWidth];
 
             InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 1);
+            //InventoryItem iii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 2);
+            //InventoryItem iiii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 3);
+            //InventoryItem iiiii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 4);
             Slots[0, 0] = ii;
+            //Slots[0, 1] = iii;
+            //Slots[2, 2] = iiii;
+            //Slots[3, 1] = iiiii;
 
             PrefabRepository.Instance.TxtInventory.GetComponent<Text>().text = ToString();
 		}
 
-        public bool HasFreeSlot
+        /*public bool HasFreeSlot
         {
             get { return MaxSlotCount > CurrentSlotCount; }
-        }
+        }*/
 
         public int MaxSlotCount
         {
@@ -61,6 +73,68 @@ namespace Assets.Scripts.InventorySystem
                 }
                 return count;
             }
+        }
+
+        public int FillFreeSlots(InventoryItem ii)
+        {
+            int newItemCnt = ii.Count;
+            int freeSlotCnt = MaxSlotCount - CurrentSlotCount;
+            int placeAbleCount = newItemCnt;
+            List<InventoryItem> notFullSlots = FindNoFullItemSlot(ii.ItemDefinition.ItemType);
+
+            for (int i = 0; i < notFullSlots.Count; i++)
+            {
+                int currentPlaceable = MaxItemCount - notFullSlots[i].Count;
+                if (placeAbleCount < currentPlaceable)
+                {
+                    notFullSlots[i].Count += placeAbleCount;
+                }
+                else
+                {
+                    notFullSlots[i].Count += currentPlaceable;
+                }
+                placeAbleCount = placeAbleCount - currentPlaceable;
+                if (placeAbleCount <= 0)
+                {
+                    placeAbleCount = 0;
+                    break;
+                }
+            }
+
+            while (placeAbleCount > 0 && freeSlotCnt > 0)
+            {
+                int currentPlaceable = placeAbleCount - MaxItemCount;
+                InventoryItem newIi = null;
+                if (currentPlaceable < MaxItemCount)
+                {
+                    newIi = new InventoryItem(ii.ItemDefinition, placeAbleCount);
+                    placeAbleCount = 0;
+                }
+                else
+                {
+                    newIi = new InventoryItem(ii.ItemDefinition, MaxItemCount);
+                    placeAbleCount -= MaxItemCount;
+                }
+
+                AddToEmptySlot(newIi);
+                freeSlotCnt--;
+            }
+
+            return ii.Count - placeAbleCount;
+        }
+
+        public List<InventoryItem> FindNoFullItemSlot(ItemTypes itemType)
+        {
+            List<InventoryItem> notFullSlots = new List<InventoryItem>();
+            for (int y = 0; y < SlotsHeight; y++)
+            {
+                for (int x = 0; x < SlotsWidth; x++)
+                {
+                    if (Slots[y, x] != null && Slots[y, x].ItemDefinition.ItemType == itemType && Slots[y, x].Count < MaxItemCount)
+                        notFullSlots.Add(Slots[y, x]);
+                }
+            }
+            return notFullSlots;
         }
 
         public void AddToEmptySlot(InventoryItem ii)
@@ -139,12 +213,25 @@ namespace Assets.Scripts.InventorySystem
             return slot;
         }
 
-        public void DeleteGUIInventory()
+        public void DeleteGuiInventory()
         {
             foreach (Transform child in PrefabRepository.Instance.GUIInventory.transform)
             {
-                GameObject.Destroy(child.gameObject);
+                if(child.name != "CurrentDraggingImageItem")
+                    GameObject.Destroy(child.gameObject);
             }
+        }
+
+        public Transform GetGuiTransformSlotByPos(int x, int y)
+        {
+            return PrefabRepository.Instance.GUIInventory.transform.Find("Slot_y" + y + "_x" + x);
+        }
+
+        public void DeleteCurrentSlotGui(int x, int y)
+        {
+            Transform currentSlot = GetGuiTransformSlotByPos(x, y);
+            GameObject.Destroy(currentSlot.transform.GetChild(0).gameObject);
+            GameObject.Destroy(currentSlot.transform.GetChild(1).gameObject);
         }
     }
 }

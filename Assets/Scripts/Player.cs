@@ -35,7 +35,8 @@ namespace Assets.Scripts
         {
             PlayerMovement();
             HandleMouseFocus();
-            HandlePlayerClick();
+            if(!Inventory.ShowInventory)
+                HandlePlayerClick();
         }
 
         private void HandlePlayerClick()
@@ -159,7 +160,7 @@ namespace Assets.Scripts
                 if (Inventory.ShowInventory)
                     Inventory.DrawInventory();
                 else
-                    Inventory.DeleteGUIInventory();
+                    Inventory.DeleteGuiInventory();
             }
         }
 
@@ -170,15 +171,16 @@ namespace Assets.Scripts
             {
                 Debug.Log("Bumped into item!");
                 ItemInstance drop = collision.gameObject.GetComponent<ItemBehaviour>().Instance;
-                if (Inventory.HasFreeSlot)
+
+                InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[drop.ItemType], 1);
+                int placedItemCount = Inventory.FillFreeSlots(ii);
+                if (placedItemCount > 0)
                 {
-                    InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[drop.ItemType], 1);
-                    Inventory.AddToEmptySlot(ii);
                     PrefabRepository.Instance.World.Items.Remove(drop);
                     Destroy(drop.GameObject);
                     if (Inventory.ShowInventory)
                     {
-                        Inventory.DeleteGUIInventory();
+                        Inventory.DeleteGuiInventory();
                         Inventory.DrawInventory();
                     }
                 }
