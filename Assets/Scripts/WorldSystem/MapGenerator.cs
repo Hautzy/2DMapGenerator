@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Assets.Scripts;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using Assets.Scripts.Blocks;
+using UnityEngine;
 
-namespace Assets.Scripts 
+namespace Assets.Scripts.WorldSystem 
 {
 
 	public class MapGenerator : MonoBehaviour

@@ -5,6 +5,7 @@ namespace Assets.Scripts.Items
 {
     public class ItemDefinition
     {
+        public const int MaxItemCount = 4; 
         public string Name { get; set; }
         public GameObject Prefab { get; set; }
         public ItemTypes ItemType { get; set; }

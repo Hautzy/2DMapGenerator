@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.Scripts {
+namespace Assets.Scripts.WorldSystem {
 	public class PerlinNoise
 	{
 	    private long seed;

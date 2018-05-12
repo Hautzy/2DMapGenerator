@@ -5,6 +5,7 @@ using Assets.Scripts.InventorySystem;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.Items;
+using Assets.Scripts.WorldSystem;
 
 namespace Assets.Scripts
 {
@@ -30,7 +31,7 @@ namespace Assets.Scripts
             Inventory = new Inventory(this);
             Inventory loadedInventory = Inventory.LoadInventory();
             if(loadedInventory != null)
-                Inventory.Slots = loadedInventory.Slots;
+                Inventory.InventorySlots = loadedInventory.InventorySlots;
             _rb = GetComponent<Rigidbody2D>();
         }
 

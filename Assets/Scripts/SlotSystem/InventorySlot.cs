@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using Assets.Scripts.InventorySystem;
+using Assets.Scripts.Items;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Assets.Scripts.Items;
 
-namespace Assets.Scripts.InventorySystem
+namespace Assets.Scripts.SlotSystem
 {
     public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler,
         IEndDragHandler, IDragHandler
@@ -46,20 +42,20 @@ namespace Assets.Scripts.InventorySystem
                 GameObject.Destroy(Inventory.CurrentDraggingImageItem);
                 Inventory.CurrentDraggingImageItem = null;
             }
-            if (Inventory.Slots[Y, X] != null)
+            if (Inventory.InventorySlots[Y, X] != null)
             {
                 Debug.Log("START DRAG - " + Y + "/" + X);
-                Inventory.CurrentDraggingInventoryItem = Inventory.Slots[Y, X];
-                Inventory.Slots[Y, X] = null;
+                Inventory.CurrentDraggingInventoryItem = Inventory.InventorySlots[Y, X];
+                Inventory.InventorySlots[Y, X] = null;
                 Inventory.DraggingStartingPosition = new Vector2Int(X, Y);
-                Inventory.DeleteCurrentSlotGui(X, Y);
+                Inventory.DeleteGuiSlotPerPosition(X, Y);
 
                 Inventory.CurrentDraggingImageItem = new GameObject("CurrentDraggingImageItem");
                 Image image = Inventory.CurrentDraggingImageItem.AddComponent<Image>();
                 image.sprite = PrefabRepository.Instance
                     .ItemDefinitions[Inventory.CurrentDraggingInventoryItem.ItemDefinition.ItemType].Sprite;
                 image.transform.position = Input.mousePosition + new Vector3(20, -20);
-                image.rectTransform.sizeDelta = new Vector2(Inventory.SlotSize * 0.6f, Inventory.SlotSize * 0.6f);
+                image.rectTransform.sizeDelta = new Vector2(SlotController.SlotSize * 0.6f, SlotController.SlotSize * 0.6f);
                 image.transform.SetParent(PrefabRepository.Instance.GUIInventory.transform);
 
                 GameObject prefab = PrefabRepository.Instance.InventoryCountText;
@@ -80,12 +76,12 @@ namespace Assets.Scripts.InventorySystem
                 Inventory.CurrentDraggingImageItem = null;
                 if (Inventory.SelectedSlotPosition == null)
                 {
-                    Inventory.Slots[Y, X] = Inventory.CurrentDraggingInventoryItem;
+                    Inventory.InventorySlots[Y, X] = Inventory.CurrentDraggingInventoryItem;
                     Debug.Log("Reset dragging");
                 }
                 else
                 {
-                    Inventory.Slots[Inventory.SelectedSlotPosition.Value.y, Inventory.SelectedSlotPosition.Value.x] =
+                    Inventory.InventorySlots[Inventory.SelectedSlotPosition.Value.y, Inventory.SelectedSlotPosition.Value.x] =
                         Inventory.CurrentDraggingInventoryItem;
                     Debug.Log("END DRAG - " + Inventory.SelectedSlotPosition.Value.y + "/" +
                               Inventory.SelectedSlotPosition.Value.x);
@@ -100,7 +96,7 @@ namespace Assets.Scripts.InventorySystem
         {
             if (IsSelected && Input.GetKeyDown(KeyCode.G))
             {
-                if (Inventory.Slots[Y, X] != null)
+                if (Inventory.InventorySlots[Y, X] != null)
                 {
                     Debug.Log("DROP");
                     // TODO: Item can bug into other blogs when dropped right next to them, because position is absolute
@@ -111,13 +107,13 @@ namespace Assets.Scripts.InventorySystem
                     ItemInstance itemInstance = new ItemInstance(InventoryItem.ItemDefinition.ItemType, current);
                     current.GetComponent<ItemBehaviour>().Instance = itemInstance;
                     PrefabRepository.Instance.World.Items.Add(itemInstance);
-                    if (Inventory.Slots[Y, X].Count - 1 < 1)
+                    if (Inventory.InventorySlots[Y, X].Count - 1 < 1)
                     {
-                        Inventory.Slots[Y, X] = null;
+                        Inventory.InventorySlots[Y, X] = null;
                     }
                     else
                     {
-                        Inventory.Slots[Y, X].Count--;
+                        Inventory.InventorySlots[Y, X].Count--;
                     }
                     Destroy(gameObject);
 

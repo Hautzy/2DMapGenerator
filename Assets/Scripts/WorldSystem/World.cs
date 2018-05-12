@@ -1,13 +1,11 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using Assets.Scripts.Blocks;
-using UnityEngine;
 using System.Runtime.Serialization;
-using System;
-using System.Linq;
+using Assets.Scripts.Blocks;
 using Assets.Scripts.Items;
+using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.WorldSystem
 {
 	[Serializable()]
 	public class World: ISerializable
