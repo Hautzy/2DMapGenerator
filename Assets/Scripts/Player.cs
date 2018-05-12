@@ -10,6 +10,7 @@ namespace Assets.Scripts
 {
     public class Player : MonoBehaviour
     {
+
         private Rigidbody2D _rb;
 
         public float SpeedX;
@@ -24,10 +25,13 @@ namespace Assets.Scripts
         void Start()
         {
             World = PrefabRepository.Instance.World;
-            Inventory = new Inventory(this);
-            _rb = GetComponent<Rigidbody2D>();
             BlockSelector = PrefabRepository.Instance.BlockSelector;
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
+            Inventory = new Inventory(this);
+            Inventory loadedInventory = Inventory.LoadInventory();
+            if(loadedInventory != null)
+                Inventory.Slots = loadedInventory.Slots;
+            _rb = GetComponent<Rigidbody2D>();
         }
 
         // Update is called once per frame

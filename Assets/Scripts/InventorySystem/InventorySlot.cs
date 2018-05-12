@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,23 +20,6 @@ namespace Assets.Scripts.InventorySystem
         public GameObject Hover { get; set; }
         public bool IsSelected { get; set; }
 
-        /*public void OnPointerEnter(PointerEventData eventData)
-        {
-            IsSelected = true;
-            LastTime = Time.time;
-            Debug.Log(Y + "/" + X + " - ENTERED");
-            if (Hover == null)
-            {
-                Hover = new GameObject("selected_slot");
-                Image image = Hover.AddComponent<Image>();
-                Hover.transform.position =
-                    new Vector3(Inventory.InventoryLeftPadding + X * (Inventory.SlotSize + Inventory.SlotMargin),
-                        Inventory.InventoryTopPadding - Y * (Inventory.SlotSize + Inventory.SlotMargin));
-                Hover.transform.SetParent(PrefabRepository.Instance.GUIInventory.transform);
-                image.rectTransform.sizeDelta = new Vector2(Inventory.SlotSize, Inventory.SlotSize);
-                image.sprite = PrefabRepository.Instance.SlotHoverSprite;
-            }
-        }*/
         public void OnPointerEnter(PointerEventData eventData)
         {
             //Debug.Log("ENTER");
@@ -106,6 +90,7 @@ namespace Assets.Scripts.InventorySystem
                     Debug.Log("END DRAG - " + Inventory.SelectedSlotPosition.Value.y + "/" +
                               Inventory.SelectedSlotPosition.Value.x);
                 }
+                Inventory.SaveChanges();
                 Inventory.DeleteGuiInventory();
                 Inventory.DrawInventory();
             }
@@ -126,9 +111,17 @@ namespace Assets.Scripts.InventorySystem
                     ItemInstance itemInstance = new ItemInstance(InventoryItem.ItemDefinition.ItemType, current);
                     current.GetComponent<ItemBehaviour>().Instance = itemInstance;
                     PrefabRepository.Instance.World.Items.Add(itemInstance);
-                    Inventory.Slots[Y, X] = null;
+                    if (Inventory.Slots[Y, X].Count - 1 < 1)
+                    {
+                        Inventory.Slots[Y, X] = null;
+                    }
+                    else
+                    {
+                        Inventory.Slots[Y, X].Count--;
+                    }
                     Destroy(gameObject);
 
+                    Inventory.SaveChanges();
                     Inventory.DeleteGuiInventory();
                     Inventory.DrawInventory();
                 }
