@@ -15,6 +15,7 @@ namespace Assets.Scripts
 
         public const string PrefabsFolderPath = "Prefabs/";
         public const string SpritesFolderPath = "Sprites/";
+        public const string PersistInventoryItemBarName = "Inventory_ItemBar";
 
         public static PrefabRepository Instance
         {
@@ -42,7 +43,9 @@ namespace Assets.Scripts
         public GameObject TxtMouseYCoord { get; set; }
         public GameObject TxtBlockType { get; set; }
         public GameObject TxtInventory { get; set; }
-        public GameObject GUIInventory { get; set; }
+        public GameObject TxtItemBar { get; set; }
+        public GameObject GuiInventory { get; set; }
+        public GameObject GuiItemBar { get; set; }
         public GameObject InventoryCountText { get; set; }
 
         public Sprite SlotSprite { get; set; }
@@ -57,7 +60,7 @@ namespace Assets.Scripts
             LoadGameObjects();
             LoadBlockPrefabs();
             LoadItemPrefabs();
-            LoadGameUI();
+            LoadGameUi();
             LoadSprites();
 
             DefineItemDrops();
@@ -75,13 +78,15 @@ namespace Assets.Scripts
             BlockDefinitions[BlockTypes.Grass].ItemDrop = new ItemDrop(ItemDefinitions[ItemTypes.GrassDrop], 1);
         }
 
-        private void LoadGameUI()
+        private void LoadGameUi()
         {
             TxtMouseXCoord = GameObject.Find("TxtMouseXCoord");
             TxtMouseYCoord = GameObject.Find("TxtMouseYCoord");
             TxtBlockType = GameObject.Find("TxtBlockType");
+            GuiInventory = GameObject.Find("GuiInventory");
             TxtInventory = GameObject.Find("TxtInventory");
-            GUIInventory = GameObject.Find("GUIInventory");
+            GuiItemBar = GameObject.Find("GuiItemBar");
+            TxtItemBar = GameObject.Find("TxtItemBar");
             InventoryCountText = Resources.Load(PrefabsFolderPath + "InventoryCountText") as GameObject;
         }
 

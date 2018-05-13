@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.Blocks;
 using Assets.Scripts.InventorySystem;
+using Assets.Scripts.ItemBarSystem;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.Items;
@@ -11,7 +12,6 @@ namespace Assets.Scripts
 {
     public class Player : MonoBehaviour
     {
-
         private Rigidbody2D _rb;
 
         public float SpeedX;
@@ -21,6 +21,7 @@ namespace Assets.Scripts
         public GameObject BlockSelector { get; private set; }
         public World World { get; set; }
         public Inventory Inventory { get; set; }
+        public ItemBar ItemBar { get; set; }
 
         // Use this for initialization
         void Start()
@@ -29,9 +30,12 @@ namespace Assets.Scripts
             BlockSelector = PrefabRepository.Instance.BlockSelector;
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
             Inventory = new Inventory(this);
-            Inventory loadedInventory = Inventory.LoadInventory();
+            ItemBar = new ItemBar(this);
+            ItemBar.Show = true;
+            ItemBar.DrawUi();
+            Inventory loadedInventory = (Inventory)Inventory.Load();
             if(loadedInventory != null)
-                Inventory.InventorySlots = loadedInventory.InventorySlots;
+                Inventory.Slots = loadedInventory.Slots;
             _rb = GetComponent<Rigidbody2D>();
         }
 
@@ -40,7 +44,7 @@ namespace Assets.Scripts
         {
             PlayerMovement();
             HandleMouseFocus();
-            if(!Inventory.ShowInventory)
+            if(!Inventory.Show)
                 HandlePlayerClick();
         }
 
@@ -161,11 +165,11 @@ namespace Assets.Scripts
             }
             if (Input.GetKeyDown(KeyCode.I))
             {
-                Inventory.ShowInventory = !Inventory.ShowInventory;
-                if (Inventory.ShowInventory)
-                    Inventory.DrawInventory();
+                Inventory.Show = !Inventory.Show;
+                if (Inventory.Show)
+                    Inventory.DrawUi();
                 else
-                    Inventory.DeleteGuiInventory();
+                    Inventory.DeleteGui();
             }
         }
 
@@ -183,10 +187,10 @@ namespace Assets.Scripts
                 {
                     PrefabRepository.Instance.World.Items.Remove(drop);
                     Destroy(drop.GameObject);
-                    if (Inventory.ShowInventory)
+                    if (Inventory.Show)
                     {
-                        Inventory.DeleteGuiInventory();
-                        Inventory.DrawInventory();
+                        Inventory.DeleteGui();
+                        Inventory.DrawUi();
                     }
                 }
             }

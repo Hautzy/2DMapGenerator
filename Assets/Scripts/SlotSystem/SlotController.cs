@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Contracts;
 using Assets.Scripts.InventorySystem;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +20,7 @@ namespace Assets.Scripts.SlotSystem
             string mainPrefix, 
             InventoryItem currentInventoryItem, 
             Transform parent, 
-            Inventory inventory,
+            SlotsObject slotsObject,
             float leftPadding,
             float bottomPadding)
         {
@@ -27,7 +28,7 @@ namespace Assets.Scripts.SlotSystem
             GameObject slot = CreateBasicEmptySlot(y, x, mainPrefix + "Slot", parent, leftPadding, bottomPadding);
             InventorySlot inventorySlot = slot.AddComponent<InventorySlot>();
             inventorySlot.InventoryItem = currentInventoryItem;
-            inventorySlot.Inventory = inventory;
+            inventorySlot.SlotsObject = slotsObject;
             inventorySlot.X = x;
             inventorySlot.Y = y;
             if (currentInventoryItem != null)

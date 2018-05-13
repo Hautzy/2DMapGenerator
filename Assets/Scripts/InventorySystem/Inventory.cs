@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Assets.Scripts.Contracts;
 using Assets.Scripts.Items;
 using Assets.Scripts.SlotSystem;
 using UnityEngine;
@@ -12,68 +13,19 @@ using UnityEngine.UI;
 namespace Assets.Scripts.InventorySystem
 {
     [Serializable()]
-    public class Inventory : ISerializable
+    public class Inventory : SlotsObject, ISlotObjectPersistable
     {
-
-        public static string InventoryName = "Inventory_";
-        public const string InventorySlotPrefix = "Inventory";
-
-        public const int SlotsWidth = 6;
-        public const int SlotsHeight = 4;
-        public const float InventoryBottomPadding = 200;
-        public const float InventoryLeftPadding = 1000;
-        public bool ShowInventory { get; set; }
-        public InventoryItem[,] InventorySlots { get; set; }
-        public Player Owner { get; set; }
-        public InventoryItem CurrentDraggingInventoryItem { get; set; }
-        public Vector2Int DraggingStartingPosition { get; set; }
-        public Vector2Int? SelectedSlotPosition { get; set; }
-        public GameObject CurrentDraggingImageItem { get; set; } // current dragged item as image
-
-        public Inventory(Player owner)
+        public Inventory(Player owner) : base(
+            owner, 
+            PrefabRepository.Instance.TxtInventory.GetComponent<Text>(), 
+            PrefabRepository.Instance.GuiInventory, 
+            6, 4, 200, 1000, "Inventory")
         {
-            Owner = owner;
-            InventorySlots = new InventoryItem[SlotsHeight, SlotsWidth];
-
-            //InventoryItem ii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 1);
-            //InventoryItem iii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 2);
-            //InventoryItem iiii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 3);
-            //InventoryItem iiiii = new InventoryItem(PrefabRepository.Instance.ItemDefinitions[ItemTypes.GrassDrop], 4);
-            //InventorySlots[0, 0] = ii;
-            //InventorySlots[0, 1] = iii;
-            //InventorySlots[2, 2] = iiii;
-            //InventorySlots[3, 1] = iiiii;
-
-            PrefabRepository.Instance.TxtInventory.GetComponent<Text>().text = ToString();
         }
 
-        public Inventory(SerializationInfo info, StreamingContext ctx)
+        public Inventory(SerializationInfo info, StreamingContext ctx): base(null, null, null, 0, 0, 0, 0, "")
         {
-            InventorySlots = (InventoryItem[,]) info.GetValue("InventorySlots", typeof(InventoryItem[,]));
-        }
-
-        public int MaxSlotCount
-        {
-            get { return SlotsWidth * SlotsHeight; }
-        }
-
-        public int CurrentSlotCount
-        {
-            get
-            {
-                int count = 0;
-                for (int y = 0; y < SlotsHeight; y++)
-                {
-                    for (int x = 0; x < SlotsWidth; x++)
-                    {
-                        if (InventorySlots[y, x] != null)
-                        {
-                            count++;
-                        }
-                    }
-                }
-                return count;
-            }
+            Slots = (InventoryItem[,]) info.GetValue("InventorySlots", typeof(InventoryItem[,]));
         }
 
         public int FillFreeSlots(InventoryItem ii)
@@ -132,9 +84,9 @@ namespace Assets.Scripts.InventorySystem
             {
                 for (int x = 0; x < SlotsWidth; x++)
                 {
-                    if (InventorySlots[y, x] != null && InventorySlots[y, x].ItemDefinition.ItemType == itemType &&
-                        InventorySlots[y, x].Count < ItemDefinition.MaxItemCount)
-                        notFullSlots.Add(InventorySlots[y, x]);
+                    if (Slots[y, x] != null && Slots[y, x].ItemDefinition.ItemType == itemType &&
+                        Slots[y, x].Count < ItemDefinition.MaxItemCount)
+                        notFullSlots.Add(Slots[y, x]);
                 }
             }
             return notFullSlots;
@@ -146,9 +98,9 @@ namespace Assets.Scripts.InventorySystem
             {
                 for (int x = 0; x < SlotsWidth; x++)
                 {
-                    if (InventorySlots[y, x] == null)
+                    if (Slots[y, x] == null)
                     {
-                        InventorySlots[y, x] = ii;
+                        Slots[y, x] = ii;
 
                         PrefabRepository.Instance.TxtInventory.GetComponent<Text>().text = ToString();
                         SaveChanges();
@@ -158,77 +110,22 @@ namespace Assets.Scripts.InventorySystem
             }
         }
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int y = 0; y < SlotsHeight; y++)
-            {
-                for (int x = 0; x < SlotsWidth; x++)
-                {
-                    if (InventorySlots[y, x] != null)
-                        sb.AppendLine(InventorySlots[y, x].Count + " x " + InventorySlots[y, x].ItemDefinition.Name);
-                    else
-                        sb.AppendLine("---------");
-                }
-            }
-            return sb.ToString();
-        }
-
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("InventorySlots", InventorySlots);
+            info.AddValue("InventorySlots", Slots);
         }
-
-        public void DrawInventory()
-        {
-            for (int y = 0; y < SlotsHeight; y++)
-            {
-                for (int x = 0; x < SlotsWidth; x++)
-                {
-                    SlotController.DrawItemSlotWithSpriteAndDetails(
-                        y, 
-                        x, 
-                        InventorySlotPrefix, 
-                        InventorySlots[y, x], 
-                        PrefabRepository.Instance.GUIInventory.transform, 
-                        this,
-                        InventoryLeftPadding,
-                        InventoryBottomPadding);
-                }
-            }
-        }
-
-        public void DeleteGuiInventory()
-        {
-            foreach (Transform child in PrefabRepository.Instance.GUIInventory.transform)
-            {
-                if (child.name != "CurrentDraggingImageItem")
-                    GameObject.Destroy(child.gameObject);
-            }
-        }
-
-        public Transform GetGuiTransformSlotByPos(int x, int y, string prefix)
-        {
-            return PrefabRepository.Instance.GUIInventory.transform.Find(prefix + "Slot_y" + y + "_x" + x);
-        }
-
-        public void DeleteGuiSlotPerPosition(int x, int y)
-        {
-            Transform currentSlot = GetGuiTransformSlotByPos(x, y, InventorySlotPrefix);
-            GameObject.Destroy(currentSlot.transform.GetChild(0).gameObject);
-            GameObject.Destroy(currentSlot.transform.GetChild(1).gameObject);
-        }
+        
 
         public void SaveChanges()
         {
-            SerializationController.Serialize(InventoryName + ".txt", this);
+            SerializationController.Serialize(PrefabRepository.PersistInventoryItemBarName + ".txt", this);
         }
 
-        public Inventory LoadInventory()
+        public ISlotObjectPersistable Load()
         {
             try
             {
-                return (Inventory) SerializationController.Deserialize(InventoryName + ".txt");
+                return (Inventory) SerializationController.Deserialize(PrefabRepository.PersistInventoryItemBarName + ".txt");
             }
             catch (Exception e)
             {
