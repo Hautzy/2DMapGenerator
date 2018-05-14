@@ -118,14 +118,14 @@ namespace Assets.Scripts.InventorySystem
 
         public void SaveChanges()
         {
-            SerializationController.Serialize(PrefabRepository.PersistInventoryItemBarName + ".txt", this);
+            SerializationController.Serialize(PrefabRepository.PersistInventoryName + ".txt", this);
         }
 
         public ISlotObjectPersistable Load()
         {
             try
             {
-                return (Inventory) SerializationController.Deserialize(PrefabRepository.PersistInventoryItemBarName + ".txt");
+                return (Inventory) SerializationController.Deserialize(PrefabRepository.PersistInventoryName + ".txt");
             }
             catch (Exception e)
             {

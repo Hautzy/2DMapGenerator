@@ -15,7 +15,8 @@ namespace Assets.Scripts
 
         public const string PrefabsFolderPath = "Prefabs/";
         public const string SpritesFolderPath = "Sprites/";
-        public const string PersistInventoryItemBarName = "Inventory_ItemBar";
+        public const string PersistInventoryName = "Inventory";
+        public const string PersistItemBarName = "ItemBar";
 
         public static PrefabRepository Instance
         {

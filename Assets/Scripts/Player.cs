@@ -31,11 +31,14 @@ namespace Assets.Scripts
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
             Inventory = new Inventory(this);
             ItemBar = new ItemBar(this);
+            ItemBar loadedItemBar = (ItemBar) ItemBar.Load();
+            Inventory loadedInventory = (Inventory)Inventory.Load();
+            if (loadedInventory != null)
+                Inventory.Slots = loadedInventory.Slots;
+            if (loadedItemBar != null)
+                ItemBar.Slots = loadedItemBar.Slots;
             ItemBar.Show = true;
             ItemBar.DrawUi();
-            Inventory loadedInventory = (Inventory)Inventory.Load();
-            if(loadedInventory != null)
-                Inventory.Slots = loadedInventory.Slots;
             _rb = GetComponent<Rigidbody2D>();
         }
 

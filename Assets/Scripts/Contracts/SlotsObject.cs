@@ -122,11 +122,24 @@ namespace Assets.Scripts.Contracts
             return Parent.transform.Find(prefix + "Slot_y" + y + "_x" + x);
         }
 
-        public void DeleteGuiSlotPerPosition(int x, int y)
+        public void DeleteGuiSlotAtPosition(int x, int y)
         {
             Transform currentSlot = GetGuiTransformSlotByPos(x, y, SlotPrefix);
             GameObject.Destroy(currentSlot.transform.GetChild(0).gameObject);
             GameObject.Destroy(currentSlot.transform.GetChild(1).gameObject);
+        }
+
+        public void DrawGuiSlotAtPosition(int x, int y)
+        {
+            SlotController.DrawItemSlotWithSpriteAndDetails(
+                y,
+                x,
+                SlotPrefix,
+                Slots[y, x],
+                Parent.transform,
+                this,
+                DrawLeftPadding,
+                DrawBottomPadding);
         }
     }
 }
