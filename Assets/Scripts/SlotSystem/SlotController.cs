@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Scripts.Contracts;
 using Assets.Scripts.InventorySystem;
+using Assets.Scripts.SlotsObjectSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +14,7 @@ namespace Assets.Scripts.SlotSystem
         public const float SlotSize = 50f;
         public const float SlotMargin = 5f;
 
-        public static void DrawItemSlotWithSpriteAndDetails(
+        public static GameObject DrawItemSlotWithSpriteAndDetails(
             int y, 
             int x, 
             string mainPrefix, 
@@ -22,7 +22,8 @@ namespace Assets.Scripts.SlotSystem
             Transform parent, 
             SlotsObject slotsObject,
             float leftPadding,
-            float bottomPadding)
+            float bottomPadding,
+            bool isSelected)
         {
             // create basic slot
             GameObject slot = CreateBasicEmptySlot(y, x, mainPrefix + "Slot", parent, leftPadding, bottomPadding);
@@ -31,6 +32,7 @@ namespace Assets.Scripts.SlotSystem
             inventorySlot.SlotsObject = slotsObject;
             inventorySlot.X = x;
             inventorySlot.Y = y;
+            inventorySlot.IsSelected = isSelected;
             if (currentInventoryItem != null)
             {
                 // create image for sprite
@@ -50,6 +52,7 @@ namespace Assets.Scripts.SlotSystem
                         bottomPadding - y * (SlotSize + SlotMargin) - (SlotSize) / 4);
                 slotCount.transform.SetParent(slot.transform);
             }
+            return slot;
         }
 
         public static GameObject CreateBasicEmptySlot(int y, int x, string prefix, Transform parent, float leftPadding, float bottomPadding)

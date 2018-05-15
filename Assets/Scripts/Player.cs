@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Assets.Scripts.Blocks;
 using Assets.Scripts.InventorySystem;
 using Assets.Scripts.ItemBarSystem;
@@ -7,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.Items;
 using Assets.Scripts.WorldSystem;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts
 {
@@ -19,6 +21,7 @@ namespace Assets.Scripts
 
         public Vector3 CurrentMousePosition { get; set; }
         public GameObject BlockSelector { get; private set; }
+        public GameObject SelectedItemGameObject { get; private set; }
         public World World { get; set; }
         public Inventory Inventory { get; set; }
         public ItemBar ItemBar { get; set; }
@@ -29,6 +32,7 @@ namespace Assets.Scripts
             World = PrefabRepository.Instance.World;
             BlockSelector = PrefabRepository.Instance.BlockSelector;
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
+            SelectedItemGameObject = GameObject.Find("SelectedItemGameObject");
             Inventory = new Inventory(this);
             ItemBar = new ItemBar(this);
             ItemBar loadedItemBar = (ItemBar) ItemBar.Load();
@@ -39,6 +43,7 @@ namespace Assets.Scripts
                 ItemBar.Slots = loadedItemBar.Slots;
             ItemBar.Show = true;
             ItemBar.DrawUi();
+            ItemBar.UpdateSelectedItemGameObject();
             _rb = GetComponent<Rigidbody2D>();
         }
 
@@ -49,6 +54,52 @@ namespace Assets.Scripts
             HandleMouseFocus();
             if(!Inventory.Show)
                 HandlePlayerClick();
+            GetItemBarChange();
+        }
+
+        private void GetItemBarChange()
+        {
+            if (Input.anyKey && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+            {
+                bool numBtnPressed = false;
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    ItemBar.SelectedSlot = 0;
+                    numBtnPressed = true;
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    ItemBar.SelectedSlot = 1;
+                    numBtnPressed = true;
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    ItemBar.SelectedSlot = 2;
+                    numBtnPressed = true;
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha4))
+                {
+                    ItemBar.SelectedSlot = 3;
+                    numBtnPressed = true;
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha5))
+                {
+                    ItemBar.SelectedSlot = 4;
+                    numBtnPressed = true;
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha6))
+                {
+                    ItemBar.SelectedSlot = 5;
+                    numBtnPressed = true;
+                }
+                if (numBtnPressed)
+                {
+                    ItemBar.DeleteGui();
+                    ItemBar.DrawUi();
+
+                    ItemBar.UpdateSelectedItemGameObject();
+                }
+            }
         }
 
         private void HandlePlayerClick()

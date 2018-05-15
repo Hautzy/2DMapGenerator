@@ -51,6 +51,8 @@ namespace Assets.Scripts
 
         public Sprite SlotSprite { get; set; }
         public Sprite SlotHoverSprite { get; set; }
+        public Sprite SlotSelectSprite { get; set; }
+        public Sprite SlotSelectHoverSprite { get; set; }
 
         public World World { get; set; }
 
@@ -70,13 +72,16 @@ namespace Assets.Scripts
         private void LoadSprites()
         {
             SlotSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot");
-            SlotHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot_select");
+            SlotHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "hovered_slot");
+            SlotSelectSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_slot");
+            SlotSelectHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_hovered_slot");
         }
 
         private void DefineItemDrops()
         {
             //Grass block -> 1 x Grass block drop
             BlockDefinitions[BlockTypes.Grass].ItemDrop = new ItemDrop(ItemDefinitions[ItemTypes.GrassDrop], 1);
+            BlockDefinitions[BlockTypes.Dirt].ItemDrop = new ItemDrop(ItemDefinitions[ItemTypes.DirtDrop], 1);
         }
 
         private void LoadGameUi()

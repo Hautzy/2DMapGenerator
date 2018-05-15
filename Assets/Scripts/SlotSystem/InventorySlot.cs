@@ -1,7 +1,7 @@
-﻿using Assets.Scripts.Contracts;
-using Assets.Scripts.InventorySystem;
+﻿using Assets.Scripts.InventorySystem;
 using Assets.Scripts.ItemBarSystem;
 using Assets.Scripts.Items;
+using Assets.Scripts.SlotsObjectSystem;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,7 +24,10 @@ namespace Assets.Scripts.SlotSystem
             //Debug.Log("ENTER");
             IsHovered = true;
             Image image = transform.GetComponent<Image>();
-            image.sprite = PrefabRepository.Instance.SlotHoverSprite;
+            if (IsSelected)
+                image.sprite = PrefabRepository.Instance.SlotSelectHoverSprite;
+            else
+                image.sprite = PrefabRepository.Instance.SlotHoverSprite;
             SlotsObject.SelectedSlotPosition = new Vector2Int(X, Y);
         }
 
@@ -33,13 +36,17 @@ namespace Assets.Scripts.SlotSystem
             //Debug.Log("EXIT");
             IsHovered = false;
             Image image = transform.GetComponent<Image>();
-            image.sprite = PrefabRepository.Instance.SlotSprite;
+            if (IsSelected)
+                image.sprite = PrefabRepository.Instance.SlotSelectSprite;
+            else
+                image.sprite = PrefabRepository.Instance.SlotSprite;
             SlotsObject.SelectedSlotPosition = null;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             Debug.Log("Drag-start event triggered");
+            SlotsObject.CurrentDraggingItem = null;
             if (SlotsObject.CurrentDraggingImageItem != null)
             {
                 GameObject.Destroy(SlotsObject.CurrentDraggingImageItem);
@@ -57,7 +64,8 @@ namespace Assets.Scripts.SlotSystem
                         if (cnt <= 0)
                             cnt = SlotsObject.Slots[Y, X].Count;
 
-                        SlotsObject.CurrentDraggingItem = new InventoryItem(SlotsObject.Slots[Y, X].ItemDefinition, cnt);
+                        SlotsObject.CurrentDraggingItem =
+                            new InventoryItem(SlotsObject.Slots[Y, X].ItemDefinition, cnt);
                         if (SlotsObject.Slots[Y, X].Count - cnt <= 0)
                         {
                             SlotsObject.Slots[Y, X] = null;
@@ -70,9 +78,12 @@ namespace Assets.Scripts.SlotSystem
                 }
                 else if (Input.GetMouseButton(0))
                 {
-                    SlotsObject.CurrentDraggingItem = SlotsObject.Slots[Y, X];
-                    SlotsObject.Slots[Y, X] = null;
-                } 
+                    if (SlotsObject.Slots[Y, X] != null)
+                    {
+                        SlotsObject.CurrentDraggingItem = SlotsObject.Slots[Y, X];
+                        SlotsObject.Slots[Y, X] = null;
+                    }
+                }
                 else if (Input.GetMouseButton(1))
                 {
                     if (SlotsObject.Slots[Y, X] != null)
@@ -87,14 +98,15 @@ namespace Assets.Scripts.SlotSystem
                 }
                 SlotsObject.DraggingStartPosition = new Vector2Int(X, Y);
                 SlotsObject.DeleteGuiSlotAtPosition(X, Y);
-                SlotsObject.DrawGuiSlotAtPosition(X, Y);
+                SlotsObject.DrawGuiSlotAtPosition(X, Y, IsSelected);
 
                 SlotsObject.CurrentDraggingImageItem = new GameObject("CurrentDraggingImageItem");
                 Image image = SlotsObject.CurrentDraggingImageItem.AddComponent<Image>();
                 image.sprite = PrefabRepository.Instance
                     .ItemDefinitions[SlotsObject.CurrentDraggingItem.ItemDefinition.ItemType].Sprite;
                 image.transform.position = Input.mousePosition + new Vector3(20, -20);
-                image.rectTransform.sizeDelta = new Vector2(SlotController.SlotSize * 0.6f, SlotController.SlotSize * 0.6f);
+                image.rectTransform.sizeDelta =
+                    new Vector2(SlotController.SlotSize * 0.6f, SlotController.SlotSize * 0.6f);
                 image.transform.SetParent(PrefabRepository.Instance.GuiInventory.transform);
 
                 GameObject prefab = PrefabRepository.Instance.InventoryCountText;
@@ -131,11 +143,12 @@ namespace Assets.Scripts.SlotSystem
                 {
                     InventoryItem help = curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y,
                         curSlotObject.SelectedSlotPosition.Value.x];
-                    if (help != null && 
-                        help.ItemDefinition.ItemType == SlotsObject.CurrentDraggingItem.ItemDefinition.ItemType && 
+                    if (help != null &&
+                        help.ItemDefinition.ItemType == SlotsObject.CurrentDraggingItem.ItemDefinition.ItemType &&
                         help.Count + SlotsObject.CurrentDraggingItem.Count <= ItemDefinition.MaxItemCount)
                     {
-                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y, curSlotObject.SelectedSlotPosition.Value.x].Count +=
+                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y,
+                                curSlotObject.SelectedSlotPosition.Value.x].Count +=
                             SlotsObject.CurrentDraggingItem.Count;
                     }
                     else if (help != null)
@@ -145,17 +158,22 @@ namespace Assets.Scripts.SlotSystem
                             SlotsObject.DraggingStartPosition.x] = help;
                         SlotsObject.DeleteGui();
                         SlotsObject.DrawUi();
-                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y, curSlotObject.SelectedSlotPosition.Value.x] =
+                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y,
+                                curSlotObject.SelectedSlotPosition.Value.x] =
                             SlotsObject.CurrentDraggingItem;
                     }
                     else
                     {
-                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y, curSlotObject.SelectedSlotPosition.Value.x] =
+                        curSlotObject.Slots[curSlotObject.SelectedSlotPosition.Value.y,
+                                curSlotObject.SelectedSlotPosition.Value.x] =
                             SlotsObject.CurrentDraggingItem;
-                        
                     }
                     curSlotObject.DeleteGui();
                     curSlotObject.DrawUi();
+
+                    var itemBar = curSlotObject as ItemBar;
+                    if(itemBar != null)
+                        itemBar.UpdateSelectedItemGameObject();
 
                     SaveChangesInventoryItemBar(SlotsObject.Owner);
                     Debug.Log("END DRAG - " + curSlotObject.SelectedSlotPosition.Value.y + "/" +

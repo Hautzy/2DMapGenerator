@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Assets.Scripts.InventorySystem;
 using Assets.Scripts.SlotSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.Contracts
+namespace Assets.Scripts.SlotsObjectSystem
 {
     public abstract class SlotsObject
     {
@@ -89,7 +86,7 @@ namespace Assets.Scripts.Contracts
             return sb.ToString();
         }
 
-        public void DrawUi()
+        public virtual void DrawUi()
         {
             for (int y = 0; y < SlotsHeight; y++)
             {
@@ -103,7 +100,8 @@ namespace Assets.Scripts.Contracts
                         Parent.transform,
                         this,
                         DrawLeftPadding,
-                        DrawBottomPadding);
+                        DrawBottomPadding,
+                        false);
                 }
             }
         }
@@ -125,11 +123,14 @@ namespace Assets.Scripts.Contracts
         public void DeleteGuiSlotAtPosition(int x, int y)
         {
             Transform currentSlot = GetGuiTransformSlotByPos(x, y, SlotPrefix);
-            GameObject.Destroy(currentSlot.transform.GetChild(0).gameObject);
-            GameObject.Destroy(currentSlot.transform.GetChild(1).gameObject);
+            if (currentSlot.transform.childCount >= 2)
+            {
+                GameObject.Destroy(currentSlot.transform.GetChild(0).gameObject);
+                GameObject.Destroy(currentSlot.transform.GetChild(1).gameObject);
+            }
         }
 
-        public void DrawGuiSlotAtPosition(int x, int y)
+        public void DrawGuiSlotAtPosition(int x, int y, bool isSelected)
         {
             SlotController.DrawItemSlotWithSpriteAndDetails(
                 y,
@@ -139,7 +140,8 @@ namespace Assets.Scripts.Contracts
                 Parent.transform,
                 this,
                 DrawLeftPadding,
-                DrawBottomPadding);
+                DrawBottomPadding,
+                isSelected);
         }
     }
 }
