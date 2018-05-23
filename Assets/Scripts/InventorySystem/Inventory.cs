@@ -26,7 +26,7 @@ namespace Assets.Scripts.InventorySystem
         public Inventory(SerializationInfo info, StreamingContext ctx): base(null, null, null, 0, 0, 0, 0, "")
         {
             Slots = (InventoryItem[,]) info.GetValue("InventorySlots", typeof(InventoryItem[,]));
-        }
+        }   
 
         public int FillFreeSlots(InventoryItem ii)
         {

@@ -12,13 +12,8 @@ using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts
 {
-    public class Player : MonoBehaviour
+    public class Player : MovingObject
     {
-        private Rigidbody2D _rb;
-
-        public float SpeedX;
-        public float SpeedY;
-
         public Vector3 CurrentMousePosition { get; set; }
         public GameObject BlockSelector { get; private set; }
         public GameObject SelectedItemGameObject { get; private set; }
@@ -27,8 +22,9 @@ namespace Assets.Scripts
         public ItemBar ItemBar { get; set; }
 
         // Use this for initialization
-        void Start()
+        public override void Start()
         {
+            base.Start();
             World = PrefabRepository.Instance.World;
             BlockSelector = PrefabRepository.Instance.BlockSelector;
             BlockSelector = Instantiate(BlockSelector, new Vector3(0, 0), Quaternion.identity);
@@ -36,7 +32,7 @@ namespace Assets.Scripts
             Inventory = new Inventory(this);
             ItemBar = new ItemBar(this);
             ItemBar loadedItemBar = (ItemBar) ItemBar.Load();
-            Inventory loadedInventory = (Inventory)Inventory.Load();
+            Inventory loadedInventory = (Inventory) Inventory.Load();
             if (loadedInventory != null)
                 Inventory.Slots = loadedInventory.Slots;
             if (loadedItemBar != null)
@@ -44,17 +40,20 @@ namespace Assets.Scripts
             ItemBar.Show = true;
             ItemBar.DrawUi();
             ItemBar.UpdateSelectedItemGameObject();
-            _rb = GetComponent<Rigidbody2D>();
         }
 
         // Update is called once per frame
         void Update()
         {
-            PlayerMovement();
             HandleMouseFocus();
-            if(!Inventory.Show)
+            if (!Inventory.Show)
                 HandlePlayerClick();
             GetItemBarChange();
+        }
+
+        void FixedUpdate()
+        {
+            PlayerMovement();
         }
 
         private void GetItemBarChange()
@@ -198,18 +197,19 @@ namespace Assets.Scripts
 
         private void PlayerMovement()
         {
-            if (Input.GetKey(KeyCode.LeftArrow))
+            float h = Input.GetAxis("Horizontal");
+
+            _rb.AddForce(Vector2.right * _speedX * h);
+
+            if (Mathf.Abs(_rb.velocity.x) > _maxSpeedX)
             {
-                _rb.AddForce(new Vector2(-SpeedX * Time.deltaTime, 0));
+                _rb.velocity = new Vector2((Mathf.Abs(_rb.velocity.x) / _rb.velocity.x ) * _maxSpeedX, _rb.velocity.y);
             }
-            if (Input.GetKey(KeyCode.RightArrow))
+            if (Input.GetButtonDown("Jump") && _isGrounded)
             {
-                _rb.AddForce(new Vector2(SpeedX * Time.deltaTime, 0));
+                _rb.AddForce(Vector2.up * _jumpForce);
             }
-            if (Input.GetKey(KeyCode.Space))
-            {
-                _rb.AddForce(new Vector2(0, SpeedY * Time.deltaTime));
-            }
+
             float mouseWheel = Input.GetAxis("Mouse ScrollWheel");
             if (Camera.main.orthographicSize + mouseWheel * Time.deltaTime * 100 > 0)
                 Camera.main.orthographicSize += mouseWheel * Time.deltaTime * 100;
@@ -227,8 +227,12 @@ namespace Assets.Scripts
             }
         }
 
-        public void OnCollisionEnter2D(Collision2D collision)
+        
+
+        public override void OnCollisionEnter2D(Collision2D collision)
         {
+            base.OnCollisionEnter2D(collision);
+
             string currentTag = collision.gameObject.tag;
             if (currentTag == "Item")
             {
