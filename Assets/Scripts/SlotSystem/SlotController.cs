@@ -23,7 +23,8 @@ namespace Assets.Scripts.SlotSystem
             SlotsObject slotsObject,
             float leftPadding,
             float bottomPadding,
-            bool isSelected)
+            bool isSelected,
+            GameObject[,] gameObjectSlots)
         {
             // create basic slot
             GameObject slot = CreateBasicEmptySlot(y, x, mainPrefix + "Slot", parent, leftPadding, bottomPadding);
@@ -33,6 +34,7 @@ namespace Assets.Scripts.SlotSystem
             inventorySlot.X = x;
             inventorySlot.Y = y;
             inventorySlot.IsSelected = isSelected;
+            gameObjectSlots[y, x] = slot;
             if (currentInventoryItem != null)
             {
                 // create image for sprite

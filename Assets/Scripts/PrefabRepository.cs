@@ -71,10 +71,19 @@ namespace Assets.Scripts
 
         private void LoadSprites()
         {
-            SlotSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot");
-            SlotHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "hovered_slot");
-            SlotSelectSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_slot");
-            SlotSelectHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_hovered_slot");
+            //SlotSprite = Resources.Load<Sprite>(SpritesFolderPath + "slot");
+            //SlotHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "hovered_slot");
+            //SlotSelectSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_slot");
+            //SlotSelectHoverSprite = Resources.Load<Sprite>(SpritesFolderPath + "selected_hovered_slot");
+            var test = Resources.LoadAll<Sprite>(SpritesFolderPath + "Inventory");
+            Debug.Log("Test");
+
+
+            var invSprites = Resources.LoadAll<Sprite>(SpritesFolderPath + "Inventory");
+            SlotSelectSprite = invSprites[2];
+            SlotSelectHoverSprite = invSprites[1];
+            SlotHoverSprite = invSprites[0];
+            SlotSprite = invSprites[3];
         }
 
         private void DefineItemDrops()
@@ -107,20 +116,25 @@ namespace Assets.Scripts
         {
             ItemDefinitions = new Dictionary<ItemTypes, ItemDefinition>();
 
-            LoadSingleItemPrefab("GrassDrop", ItemTypes.GrassDrop, "GrassDrop", "GrassDrop_Item");
-            LoadSingleItemPrefab("DirtDrop", ItemTypes.DirtDrop, "DirtDrop", "DirtDrop_Item");
-            LoadSingleItemPrefab("StoneDrop", ItemTypes.StoneDrop, "StoneDrop", "StoneDrop_item");
+            string pre = "Items/";
+
+            LoadSingleItemPrefab("GrassDrop", ItemTypes.GrassDrop, pre + "GrassDrop");
+            LoadSingleItemPrefab("DirtDrop", ItemTypes.DirtDrop, pre + "DirtDrop");
+            LoadSingleItemPrefab("StoneDrop", ItemTypes.StoneDrop, pre + "StoneDrop");
         }
 
         private void LoadBlockPrefabs()
         {
             BlockDefinitions = new Dictionary<BlockTypes, BlockDefinition>();
 
-            LoadSingleBlockPrefab("Dirt", BlockTypes.Dirt);
-            LoadSingleBlockPrefab("Stone", BlockTypes.Stone);
-            LoadSingleBlockPrefab("Grass", BlockTypes.Grass);
+            string pre = "Blocks/";
+
+            LoadSingleBlockPrefab(pre + "Dirt", BlockTypes.Dirt);
+            LoadSingleBlockPrefab(pre + "Stone", BlockTypes.Stone);
+            LoadSingleBlockPrefab(pre + "Grass", BlockTypes.Grass);
+            LoadSingleBlockPrefab(pre + "Ore", BlockTypes.Ore);
+            
             LoadSingleBlockPrefab("Tree", BlockTypes.Tree);
-            LoadSingleBlockPrefab("Ore", BlockTypes.Ore);
 
             BlockSelector = Resources.Load(PrefabsFolderPath + "BlockSelector") as GameObject;
         }
@@ -134,18 +148,17 @@ namespace Assets.Scripts
             ));
         }
 
-        private void LoadSingleItemPrefab(string name, ItemTypes type, string prefabName, string spriteName)
+        private void LoadSingleItemPrefab(string name, ItemTypes type, string prefabName)
         {
+            GameObject go = Resources.Load(PrefabsFolderPath + prefabName) as GameObject;
             var itemDefinition = new ItemDefinition(
                 name,
                 type,
-                Resources.Load(PrefabsFolderPath + prefabName) as GameObject
+                go
             );
 
-            if (spriteName != null)
-            {
-                itemDefinition.Sprite = Resources.Load<Sprite>(SpritesFolderPath + spriteName);
-            }
+            itemDefinition.Sprite = go.GetComponent<SpriteRenderer>().sprite; 
+            
             ItemDefinitions.Add(type, itemDefinition);
         }
     }

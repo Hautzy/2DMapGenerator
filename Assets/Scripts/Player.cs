@@ -37,6 +37,11 @@ namespace Assets.Scripts
                 Inventory.Slots = loadedInventory.Slots;
             if (loadedItemBar != null)
                 ItemBar.Slots = loadedItemBar.Slots;
+
+            Inventory.Show = false;
+            Inventory.DrawUi();
+            Inventory.ToggleSlots(false);
+
             ItemBar.Show = true;
             ItemBar.DrawUi();
             ItemBar.UpdateSelectedItemGameObject();
@@ -221,9 +226,9 @@ namespace Assets.Scripts
             {
                 Inventory.Show = !Inventory.Show;
                 if (Inventory.Show)
-                    Inventory.DrawUi();
+                    Inventory.ToggleSlots(true);
                 else
-                    Inventory.DeleteGui();
+                    Inventory.ToggleSlots(false);
             }
         }
 

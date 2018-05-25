@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Assets.Scripts.InventorySystem;
 using Assets.Scripts.SlotSystem;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace Assets.Scripts.SlotsObjectSystem
 
         public bool Show { get; set; }
         public InventoryItem[,] Slots { get; set; }
+        public GameObject[,] GameObjectSlots { get; set; }
         public Player Owner { get; set; }
 
         public InventoryItem CurrentDraggingItem { get; set; }
@@ -45,6 +47,7 @@ namespace Assets.Scripts.SlotsObjectSystem
             SlotPrefix = slotPrefix;
 
             Slots = new InventoryItem[SlotsHeight, SlotsWidth];
+            GameObjectSlots = new GameObject[SlotsHeight, SlotsWidth];
             if(DebugUi != null)
                 DebugUi.text = ToString();
         }
@@ -101,7 +104,19 @@ namespace Assets.Scripts.SlotsObjectSystem
                         this,
                         DrawLeftPadding,
                         DrawBottomPadding,
-                        false);
+                        false,
+                        GameObjectSlots);
+                }
+            }
+        }
+
+        public void ToggleSlots(bool status)
+        {
+            for (int y = 0; y < SlotsHeight; y++)
+            {
+                for (int x = 0; x < SlotsWidth; x++)
+                {
+                    GameObjectSlots[y, x].gameObject.SetActive(status);
                 }
             }
         }
@@ -110,14 +125,14 @@ namespace Assets.Scripts.SlotsObjectSystem
         {
             foreach (Transform child in Parent.transform)
             {
-                if (child.name != "CurrentDraggingImageItem")
-                    GameObject.Destroy(child.gameObject);
+                //if (child.name != "CurrentDraggingImageItem")
+                child.gameObject.SetActive(false);
             }
         }
 
         public Transform GetGuiTransformSlotByPos(int x, int y, string prefix)
         {
-            return Parent.transform.Find(prefix + "Slot_y" + y + "_x" + x);
+            return GameObjectSlots[y, x].transform; //Parent.transform.Find(prefix + "Slot_y" + y + "_x" + x);
         }
 
         public void DeleteGuiSlotAtPosition(int x, int y)
@@ -141,7 +156,7 @@ namespace Assets.Scripts.SlotsObjectSystem
                 this,
                 DrawLeftPadding,
                 DrawBottomPadding,
-                isSelected);
+                isSelected, GameObjectSlots);
         }
     }
 }

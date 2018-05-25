@@ -69,7 +69,8 @@ namespace Assets.Scripts.ItemBarSystem
                         this,
                         DrawLeftPadding,
                         DrawBottomPadding,
-                        isSelected);
+                        isSelected,
+                        GameObjectSlots);
                     if (isSelected)
                     {
                         InventorySlot invSlot = slot.GetComponent<InventorySlot>();
